@@ -17,15 +17,18 @@ public class DroolsServiceImpl implements DroolsService {
 	private KieContainer kieContainer;
 
 	@Override
-	public Transaction calculateBonus(List<Promotion> promotions, Transaction transaction) {
+	public List<Transaction> calculateBonus(List<Promotion> promotions, List<Transaction> transactions) {
 		KieSession kieSession = kieContainer.newKieSession();
-		promotions.stream().forEach(promo -> {
-			kieSession.insert(promo);
+		promotions.stream().forEach(promotion -> {
+			kieSession.insert(promotion);
 		});
-		kieSession.insert(transaction);
+		transactions.stream().forEach(transaction -> {
+			kieSession.insert(transaction);
+		});
+		
 		kieSession.fireAllRules();
 		kieSession.dispose();
-		return transaction;
+		return transactions;
 //		return null;
 	}
 

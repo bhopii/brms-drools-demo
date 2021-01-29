@@ -7,5 +7,5 @@ import com.abhi.brms.drools.demo.facts.transaction.Transaction;
 
 public interface DroolsService {
 	
-	Transaction calculateBonus(List<Promotion> promotions, Transaction transaction);
+	List<Transaction> calculateBonus(List<Promotion> promotions, List<Transaction> transactions);
 }

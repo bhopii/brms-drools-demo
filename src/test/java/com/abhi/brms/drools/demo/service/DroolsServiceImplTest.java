@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -43,13 +44,16 @@ public class DroolsServiceImplTest {
 		trans.setServiceEstablishment("SE2");
 		trans.setTransactionAmount(new BigDecimal(500.0));
 
-
-		Transaction resultingTrans = droolsService.calculateBonus(getPromotions(), trans);
+		
+		List<Transaction> resultingTrans = droolsService.calculateBonus(getPromotions(), Arrays.asList(trans));
 
 		Assertions.assertNotNull(resultingTrans);
-		Assertions.assertNotNull(resultingTrans.getPromoBonusAmount());
-		Assertions.assertNotNull(resultingTrans.getPromoBonusAmount().get("Promo2"));
-		Assertions.assertTrue(resultingTrans.getPromoBonusAmount().get("Promo2").equals(new BigDecimal(100.0)));
+		Assertions.assertFalse(resultingTrans.isEmpty());
+		Assertions.assertTrue(resultingTrans.size() == 1);
+		
+		Assertions.assertNotNull(resultingTrans.get(0).getPromoBonusAmount());
+		Assertions.assertNotNull(resultingTrans.get(0).getPromoBonusAmount().get("Promo2"));
+		Assertions.assertTrue(resultingTrans.get(0).getPromoBonusAmount().get("Promo2").equals(new BigDecimal(100.0)));
 	}
 	
 	
@@ -64,12 +68,56 @@ public class DroolsServiceImplTest {
 
 		
 
-		Transaction resultingTrans = droolsService.calculateBonus(getPromotions(), trans);
+		List<Transaction> resultingTrans = droolsService.calculateBonus(getPromotions(), Arrays.asList(trans));
 
 		Assertions.assertNotNull(resultingTrans);
-		Assertions.assertNotNull(resultingTrans.getPromoBonusAmount());
-		Assertions.assertNotNull(resultingTrans.getPromoBonusAmount().get("Promo1"));
-		Assertions.assertTrue(resultingTrans.getPromoBonusAmount().get("Promo1").equals(new BigDecimal(10.0)));
+		Assertions.assertFalse(resultingTrans.isEmpty());
+		Assertions.assertTrue(resultingTrans.size() == 1);
+		
+		Assertions.assertNotNull(resultingTrans.get(0).getPromoBonusAmount());
+		Assertions.assertNotNull(resultingTrans.get(0).getPromoBonusAmount().get("Promo1"));
+		Assertions.assertTrue(resultingTrans.get(0).getPromoBonusAmount().get("Promo1").equals(new BigDecimal(10.0)));
+	}
+	
+	@Test
+	public void demoMultiTransaction() throws ParseException {
+		Transaction trans1 = new Transaction();
+		trans1.setTransactionDate(sdf.parse("2020-01-01"));
+		trans1.setTransactionId("T1");
+		trans1.setCardType("C1");
+		trans1.setServiceEstablishment("SE1");
+		trans1.setTransactionAmount(new BigDecimal(500.0));
+		
+		Transaction trans2 = new Transaction();
+		trans2.setTransactionDate(sdf.parse("2020-01-01"));
+		trans2.setTransactionId("T2");
+		trans2.setCardType("C1");
+		trans2.setServiceEstablishment("SE2");
+		trans2.setTransactionAmount(new BigDecimal(500.0));
+
+		
+
+		List<Transaction> resultingTrans = droolsService.calculateBonus(getPromotions(), Arrays.asList(trans1, trans2));
+
+		Assertions.assertNotNull(resultingTrans);
+		Assertions.assertFalse(resultingTrans.isEmpty());
+		Assertions.assertTrue(resultingTrans.size() == 2);
+		
+		System.out.println(resultingTrans);
+		
+		Optional<Transaction> resultTransOpt1 = resultingTrans.stream().filter(t -> t.getTransactionId().equals("T1")).findFirst();
+		Optional<Transaction> resultTransOpt2 = resultingTrans.stream().filter(t -> t.getTransactionId().equals("T2")).findFirst();
+		
+		Assertions.assertTrue(resultTransOpt1.isPresent());
+		Assertions.assertTrue(resultTransOpt2.isPresent());
+		
+		Assertions.assertNotNull(resultTransOpt1.get().getPromoBonusAmount());
+		Assertions.assertNotNull(resultTransOpt1.get().getPromoBonusAmount().get("Promo1"));
+		Assertions.assertTrue(resultTransOpt1.get().getPromoBonusAmount().get("Promo1").equals(new BigDecimal(10.0)));
+		
+		Assertions.assertNotNull(resultTransOpt2.get().getPromoBonusAmount());
+		Assertions.assertNotNull(resultTransOpt2.get().getPromoBonusAmount().get("Promo2"));
+		Assertions.assertTrue(resultTransOpt2.get().getPromoBonusAmount().get("Promo2").equals(new BigDecimal(100.0)));
 	}
 	
 	
