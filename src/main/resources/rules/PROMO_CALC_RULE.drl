@@ -1,0 +1,18 @@
+import java.util.*;
+import java.math.BigDecimal;
+import com.abhi.brms.drools.demo.facts.promotion.Promotion;
+import com.abhi.brms.drools.demo.facts.promotion.FulFillmentType;
+import com.abhi.brms.drools.demo.facts.promotion.CalculationType;
+import com.abhi.brms.drools.demo.facts.transaction.Transaction;
+
+
+dialect  "mvel"
+
+
+ rule "Check Promotion Start Date"
+    when
+    	transaction:Transaction()
+        promotion:Promotion(startDate <= transaction.transactionDate);
+    then
+       	transaction.setBonusAmount(new BigDecimal(100.0));
+ end
