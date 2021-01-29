@@ -24,8 +24,11 @@ public class Promotion {
 	/** The service establishments. */
 	private List<String> serviceEstablishments;
 	
+	/** The min amount. */
+	private BigDecimal minAmount;
+	
 	/** The calc type. */
-	private String calcType;
+	private CalculationType calcType;
 	
 	/** The fixed amount. */
 	private BigDecimal fixedAmount;
@@ -36,8 +39,7 @@ public class Promotion {
 	/** The fulfillment type. */
 	private FulFillmentType fulfillmentType;
 	
-	/** The min amount. */
-	private BigDecimal minAmount;
+
 
 	/**
 	 * Gets the promotion id.
@@ -134,7 +136,7 @@ public class Promotion {
 	 *
 	 * @return the calc type
 	 */
-	public String getCalcType() {
+	public CalculationType getCalcType() {
 		return calcType;
 	}
 
@@ -143,7 +145,7 @@ public class Promotion {
 	 *
 	 * @param calcType the new calc type
 	 */
-	public void setCalcType(String calcType) {
+	public void setCalcType(CalculationType calcType) {
 		this.calcType = calcType;
 	}
 

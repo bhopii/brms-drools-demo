@@ -4,15 +4,215 @@ import com.abhi.brms.drools.demo.facts.promotion.Promotion;
 import com.abhi.brms.drools.demo.facts.promotion.FulFillmentType;
 import com.abhi.brms.drools.demo.facts.promotion.CalculationType;
 import com.abhi.brms.drools.demo.facts.transaction.Transaction;
+import com.abhi.brms.drools.demo.facts.execution.TransEligibility;
 
 
 dialect  "mvel"
 
+rule "INIT_TRANS_PROMO"
+	when
+		
+		$transaction:Transaction(transactionId != null)
+		$promotion:Promotion(promotionId != null)
+		not TransEligibility(promotionId == $promotion.promotionId, transactionId == $transaction.transactionId)
+	then
+		System.out.println("INIT_TRANS_PROMO_" + $promotion.getPromotionId());
+		insert(new TransEligibility($promotion.getPromotionId(), $transaction.getTransactionId()));
+end 
 
- rule "Check Promotion Start Date"
-    when
-    	transaction:Transaction()
-        promotion:Promotion(startDate <= transaction.transactionDate);
-    then
-       	transaction.setBonusAmount(new BigDecimal(100.0));
- end
+
+rule "ELIG_START_DATE"
+	when
+   		$transaction:Transaction()
+        $promotion:Promotion(startDate <= $transaction.transactionDate);
+        $transElig:TransEligibility(promotionId == $promotion.promotionId, transactionId == $transaction.transactionId 
+						        	, startDateRule.checked == false)
+   	then
+   		System.out.println("ELIG_START_DATE_" + $promotion.getPromotionId());
+   		$transElig.getStartDateRule().setChecked(true);
+   		$transElig.getStartDateRule().setPassed(true);
+   		update($transElig);
+
+end
+
+
+rule "ELIG_END_DATE"
+	when
+   		$transaction:Transaction(transactionId != null)
+        $promotion:Promotion(endDate >= $transaction.transactionDate);
+        $transElig:TransEligibility(promotionId == $promotion.promotionId 
+						        	, transactionId == $transaction.transactionId 
+						        	, endDateRule.checked == false)
+   	then
+   		System.out.println("ELIG_END_DATE_" + $promotion.getPromotionId());
+
+   		$transElig.getEndDateRule().setChecked(true);
+   		$transElig.getEndDateRule().setPassed(true);
+   		update($transElig);
+end
+
+
+rule "ELIG_CARD_TYPE"
+	when
+   		$transaction:Transaction(transactionId != null)
+        $promotion:Promotion($cardTypes: cardTypes contains $transaction.cardType);
+        $transElig:TransEligibility(promotionId == $promotion.promotionId 
+						        	, transactionId == $transaction.transactionId 
+						        	, cardTypeRule.checked == false)
+   	then
+   		System.out.println("ELIG_CARD_TYPE_" + $promotion.getPromotionId());
+   	    $transElig.getCardTypeRule().setChecked(true);
+   		$transElig.getCardTypeRule().setPassed(true);
+   		update($transElig);
+end
+
+
+rule "ELIG_SERVICE_EST"
+	when
+   		$transaction:Transaction(transactionId != null)
+        $promotion:Promotion($serviceEstablishments: serviceEstablishments contains $transaction.serviceEstablishment);
+        $transElig:TransEligibility(promotionId == $promotion.promotionId 
+						        	, transactionId == $transaction.transactionId 
+						        	, seRule.checked == false)
+   	then
+   		System.out.println("ELIG_SERVICE_EST_" + $promotion.getPromotionId());
+   		$transElig.getSeRule().setChecked(true);
+   		$transElig.getSeRule().setPassed(true);
+   		update($transElig);
+end
+
+rule "ELIG_MIN_THRESHOLD"
+	when
+   		$transaction:Transaction(transactionId != null)
+        $promotion:Promotion($transaction.transactionAmount >= minAmount);
+        $transElig:TransEligibility(promotionId == $promotion.promotionId 
+						        	, transactionId == $transaction.transactionId 
+						        	, minThresholdRule.checked == false)
+   	then
+   		System.out.println("ELIG_MIN_THRESHOLD_" + $promotion.getPromotionId());
+   		$transElig.getMinThresholdRule().setChecked(true);
+   		$transElig.getMinThresholdRule().setPassed(true);
+   		update($transElig);
+end
+
+
+
+
+rule "ELIG_START_DATE_NEG"
+	when
+   		$transaction:Transaction(transactionDate != null)
+        $promotion:Promotion(startDate > $transaction.transactionDate);
+        $transElig:TransEligibility(promotionId == $promotion.promotionId 
+						        	, transactionId == $transaction.transactionId 
+						        	, startDateRule.checked == false)
+   	then
+   		System.out.println("ELIG_START_DATE_NEG_" + $promotion.getPromotionId());
+   	   	$transElig.getStartDateRule().setChecked(true);
+   		$transElig.getStartDateRule().setPassed(false);
+   		update($transElig);
+end
+
+
+rule "ELIG_END_DATE_NEG"
+	when
+   		$transaction:Transaction(transactionDate != null)
+        $promotion:Promotion(endDate < $transaction.transactionDate);
+        $transElig:TransEligibility(promotionId == $promotion.promotionId 
+						        	, transactionId == $transaction.transactionId 
+						        	, endDateRule.checked == false)
+   	then
+   		System.out.println("ELIG_END_DATE_NEG_" + $promotion.getPromotionId());
+   	   	$transElig.getEndDateRule().setChecked(true);
+   		$transElig.getEndDateRule().setPassed(false);
+   		update($transElig);
+end
+
+
+rule "ELIG_CARD_TYPE_NEG"
+	when
+   		$transaction:Transaction(cardType != null)
+        $promotion:Promotion($cardTypes: cardTypes not contains $transaction.cardType);
+        $transElig:TransEligibility(promotionId == $promotion.promotionId 
+						        	, transactionId == $transaction.transactionId 
+						        	, cardTypeRule.checked == false)
+   	then
+   		System.out.println("ELIG_CARD_TYPE_NEG_" + $promotion.getPromotionId());
+   	   	$transElig.getCardTypeRule().setChecked(true);
+   		$transElig.getCardTypeRule().setPassed(false);
+   		update($transElig);
+end
+
+
+rule "ELIG_SERVICE_EST_NEG"
+	when
+   		$transaction:Transaction(serviceEstablishment != null)
+        $promotion:Promotion($serviceEstablishments: serviceEstablishments not contains $transaction.serviceEstablishment);
+        $transElig:TransEligibility(promotionId == $promotion.promotionId 
+						        	, transactionId == $transaction.transactionId 
+						        	, seRule.checked == false)
+   	then
+   		System.out.println("ELIG_SERVICE_EST_NEG_" + $promotion.getPromotionId());
+   	   	$transElig.getSeRule().setChecked(true);
+   		$transElig.getSeRule().setPassed(false);
+   		update($transElig);
+end
+
+rule "ELIG_MIN_THRESHOLD_NEG"
+	when
+   		$transaction:Transaction(transactionId != null)
+        $promotion:Promotion($transaction.transactionAmount < minAmount);
+        $transElig:TransEligibility(promotionId == $promotion.promotionId 
+						        	, transactionId == $transaction.transactionId 
+						        	, minThresholdRule.checked == false)
+   	then
+   		System.out.println("ELIG_MIN_THRESHOLD_NEG_" + $promotion.getPromotionId());
+   		$transElig.getMinThresholdRule().setChecked(true);
+   		$transElig.getMinThresholdRule().setPassed(false);
+   		update($transElig);
+   		
+end
+
+rule "CALCULATE_MULTIPLIER"
+	when 
+		$transElig:TransEligibility(transactionId != null)
+		$promotion:Promotion(calcType == CalculationType.MULTIPLIER, 
+					$promotionId: promotionId == $transElig.promotionId,
+					$multiplier: multiplier > 0.0)
+		$transaction:Transaction(transactionId != null 
+					, transactionId == $transElig.transactionId
+					, promoBonusAmount.get($transElig.promotionId) == null	 
+					, $transElig.minThresholdRule.passed == true
+					, $transElig.seRule.passed == true
+					, $transElig.cardTypeRule.passed == true
+					, $transElig.endDateRule.passed == true
+					, $transElig.startDateRule.passed == true)	
+
+	then
+		System.out.println("CALCULATE_MULTIPLIER_" + $transElig.getPromotionId());
+		
+		$transaction.getPromoBonusAmount().put($transElig.getPromotionId(), 
+			new BigDecimal($multiplier.multiply($transaction.getTransactionAmount()).doubleValue()));
+		retract($transElig);
+end		
+
+rule "CALCULATE_FIXED"
+	when 
+		$transElig:TransEligibility(transactionId != null)
+		$promotion:Promotion(calcType == CalculationType.FIXED, promotionId == $transElig.promotionId)
+		$transaction:Transaction(transactionId != null 
+					, transactionId == $transElig.transactionId
+					, promoBonusAmount.get($transElig.promotionId) == null	 
+					, $transElig.minThresholdRule.passed == true
+					, $transElig.seRule.passed == true
+					, $transElig.cardTypeRule.passed == true
+					, $transElig.endDateRule.passed == true
+					, $transElig.startDateRule.passed == true)	
+
+	then
+		System.out.println("CALCULATE_FIXED_" + $promotion.getPromotionId());
+		$transaction.getPromoBonusAmount().put($transElig.getPromotionId(), $promotion.getFixedAmount());
+		retract($transElig);
+end					     
+							        	
+
+

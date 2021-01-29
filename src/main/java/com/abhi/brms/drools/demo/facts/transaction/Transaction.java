@@ -2,25 +2,32 @@ package com.abhi.brms.drools.demo.facts.transaction;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  * The Class Transaction.
  */
 public class Transaction {
+
+	/** The transaction id. */
+	private String transactionId;
 	
 	/** The transaction amount. */
 	private BigDecimal transactionAmount;
-	
+
 	/** The card type. */
 	private String cardType;
-	
+
 	/** The service establishment. */
 	private String serviceEstablishment;
 
 	/** The transaction date. */
 	private Date transactionDate;
-	
-	private BigDecimal bonusAmount;
+
+	/** The promo bonus amount. */
+	private Map<String, BigDecimal> promoBonusAmount = new HashMap<>();
 
 	/**
 	 * Gets the transaction amount.
@@ -94,23 +101,39 @@ public class Transaction {
 		this.transactionDate = transactionDate;
 	}
 
-	public BigDecimal getBonusAmount() {
-		return bonusAmount;
-	}
-
-	public void setBonusAmount(BigDecimal bonusAmount) {
-		this.bonusAmount = bonusAmount;
+	/**
+	 * Gets the promo bonus amount.
+	 *
+	 * @return the promo bonus amount
+	 */
+	public Map<String, BigDecimal> getPromoBonusAmount() {
+		return promoBonusAmount;
 	}
 
 	/**
-	 * To string.
+	 * Sets the promo bonus amount.
 	 *
-	 * @return the string
+	 * @param promoBonusAmount the promo bonus amount
 	 */
+	public void setPromoBonusAmount(Map<String, BigDecimal> promoBonusAmount) {
+		this.promoBonusAmount = promoBonusAmount;
+	}
+
+	public String getTransactionId() {
+		return transactionId;
+	}
+
+	public void setTransactionId(String transactionId) {
+		this.transactionId = transactionId;
+	}
+
 	@Override
 	public String toString() {
-		return "Transaction [transactionAmount=" + transactionAmount + ", cardType=" + cardType
-				+ ", serviceEstablishment=" + serviceEstablishment + ", transactionDate=" + transactionDate + "]";
+		return "Transaction [transactionId=" + transactionId + ", transactionAmount=" + transactionAmount
+				+ ", cardType=" + cardType + ", serviceEstablishment=" + serviceEstablishment + ", transactionDate="
+				+ transactionDate + ", promoBonusAmount=" + promoBonusAmount + "]";
 	}
+	
+	
 
 }
