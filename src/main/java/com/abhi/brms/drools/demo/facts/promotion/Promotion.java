@@ -234,5 +234,78 @@ public class Promotion {
 				+ ", minAmount=" + minAmount + "]";
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((calcType == null) ? 0 : calcType.hashCode());
+		result = prime * result + ((cardTypes == null) ? 0 : cardTypes.hashCode());
+		result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
+		result = prime * result + ((fixedAmount == null) ? 0 : fixedAmount.hashCode());
+		result = prime * result + ((fulfillmentType == null) ? 0 : fulfillmentType.hashCode());
+		result = prime * result + ((minAmount == null) ? 0 : minAmount.hashCode());
+		result = prime * result + ((multiplier == null) ? 0 : multiplier.hashCode());
+		result = prime * result + ((promotionId == null) ? 0 : promotionId.hashCode());
+		result = prime * result + ((serviceEstablishments == null) ? 0 : serviceEstablishments.hashCode());
+		result = prime * result + ((startDate == null) ? 0 : startDate.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Promotion other = (Promotion) obj;
+		if (calcType != other.calcType)
+			return false;
+		if (cardTypes == null) {
+			if (other.cardTypes != null)
+				return false;
+		} else if (!cardTypes.equals(other.cardTypes))
+			return false;
+		if (endDate == null) {
+			if (other.endDate != null)
+				return false;
+		} else if (!endDate.equals(other.endDate))
+			return false;
+		if (fixedAmount == null) {
+			if (other.fixedAmount != null)
+				return false;
+		} else if (!fixedAmount.equals(other.fixedAmount))
+			return false;
+		if (fulfillmentType != other.fulfillmentType)
+			return false;
+		if (minAmount == null) {
+			if (other.minAmount != null)
+				return false;
+		} else if (!minAmount.equals(other.minAmount))
+			return false;
+		if (multiplier == null) {
+			if (other.multiplier != null)
+				return false;
+		} else if (!multiplier.equals(other.multiplier))
+			return false;
+		if (promotionId == null) {
+			if (other.promotionId != null)
+				return false;
+		} else if (!promotionId.equals(other.promotionId))
+			return false;
+		if (serviceEstablishments == null) {
+			if (other.serviceEstablishments != null)
+				return false;
+		} else if (!serviceEstablishments.equals(other.serviceEstablishments))
+			return false;
+		if (startDate == null) {
+			if (other.startDate != null)
+				return false;
+		} else if (!startDate.equals(other.startDate))
+			return false;
+		return true;
+	}
+
 	
 }
